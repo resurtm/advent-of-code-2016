@@ -7,7 +7,15 @@ pub fn main() !void {
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
-    _ = try solveInternal("R5, L5, R5, R3", allocator);
+    const file = try std.fs.cwd().openFile("./data/day01/gh.txt", .{});
+    defer file.close();
+
+    const fileStat = try file.stat();
+    const fileContent = try file.readToEndAlloc(allocator, fileStat.size);
+    defer allocator.free(fileContent);
+
+    const input = std.mem.trim(u8, fileContent, " \t\n\r");
+    std.debug.print("Day 01, part 1: {}\n", .{try solveInternal(input, allocator)});
 }
 
 fn solveInternal(input: []const u8, allocator: std.mem.Allocator) !u32 {
